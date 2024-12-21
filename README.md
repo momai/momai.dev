@@ -15,7 +15,7 @@ git clone https://github.com/momai/momai.dev.git
 cd momai.dev
 cp .env.sample .env
 docker-compose up -d
-
+```
 ## OAuth/OIDC Configuration
 
 ### 1. Auth0 Settings
