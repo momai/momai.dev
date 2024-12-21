@@ -13,14 +13,20 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v2
 
-      - name: SSH and Pull
+      - name: Add SSH key
         run: |
-          mkdir -p ~/.ssh/
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -t rsa $SERVER_IP >> ~/.ssh/known_hosts
-          export GIT_SSH_COMMAND="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
-          ssh ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} 'cd {{ secrets.PWD }} && git pull'
+          ssh-keyscan -H "$SERVER_IP" >> ~/.ssh/known_hosts
+
+      - name: Deploy via SSH
+        run: |
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no "$SSH_USER"@"$SERVER_IP" \
+            "cd {{ secrets.PWD }} && git pull"
+
+
         env:
           SSH_USER: ${{ secrets.SSH_USER }}
           SERVER_IP: ${{ secrets.SERVER_IP }}
