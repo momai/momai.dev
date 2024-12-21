@@ -1,0 +1,7 @@
+.env
+docker-compose.yaml.WORK
+bk/
+authelia/
+content/momai.dev/private/*
+content/voice.momai.dev/
+content/test-content

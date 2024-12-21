@@ -1,0 +1,226 @@
+/* Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+body {
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f9f9f9;
+  color: #2c3e50;
+  line-height: 1.6;
+}
+
+header {
+  background-color: #2d3436;
+  color: #ffffff;
+  padding: 1rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.logo {
+  height: 75px;
+  width: 75px;
+  border-radius: 50%;
+  background: url('logo.png') no-repeat center center;
+  background-size: cover;
+  flex-shrink: 0;
+}
+
+.header-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex-grow: 1;
+}
+
+.header-text h1 {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.header-text p {
+  margin: 0.3rem 0 0;
+  font-size: 0.9rem;
+  color: #bdc3c7;
+}
+
+/* Адаптивность для планшетов */
+@media (max-width: 768px) {
+  header {
+    padding: 0.8rem;
+  }
+
+  .logo {
+    height: 50px;
+    width: 50px;
+  }
+
+  .header-text h1 {
+    font-size: 1.6rem;
+  }
+
+  .header-text p {
+    font-size: 0.85rem;
+  }
+}
+
+/* Адаптивность для телефонов */
+@media (max-width: 480px) {
+  header {
+    padding: 0.5rem 0.8rem;
+    text-align: left;
+  }
+
+  .logo {
+    height: 40px;
+    width: 40px;
+  }
+
+  .header-text {
+    justify-content: flex-start;
+    gap: 0.3rem;
+  }
+
+  .header-text h1 {
+    font-size: 1.4rem;
+  }
+
+  .header-text p {
+    font-size: 0.8rem;
+  }
+}
+
+.container {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0 1.5rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.card {
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.card h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #2d3436;
+}
+
+.card p {
+  margin: 0.8rem 0;
+  font-size: 1rem;
+  color: #636e72;
+}
+
+.card a {
+  font-weight: 600;
+  text-decoration: none;
+  color: #3498db;
+  transition: color 0.3s ease;
+}
+
+.card a:hover {
+  color: #1abc9c;
+}
+
+.links {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.links a {
+  font-size: 0.9rem;
+}
+
+footer {
+  text-align: center;
+  padding: 1rem 0;
+  margin-top: 2rem;
+  background-color: #2d3436;
+  color: #ffffff;
+}
+
+footer p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+footer a {
+  color: #1abc9c;
+  text-decoration: none;
+}
+
+footer a:hover {
+  text-decoration: underline;
+}
+
+/* Tooltip container */
+.tooltip {
+  position: relative;
+  display: inline-block;
+  font-size: 0.75rem; /* Размер значка `?` */
+  color: #7f8c8d; /* Цвет значка */
+  cursor: pointer;
+  margin-left: 0.2rem;
+  vertical-align: super; /* Позиционирование в верхнем индексе */
+}
+
+/* Tooltip text (hidden by default) */
+.tooltip-text {
+  visibility: hidden;
+  width: 200px;
+  background-color: #2c3e50;
+  color: #ffffff;
+  text-align: center;
+  padding: 0.5rem;
+  border-radius: 8px;
+  position: absolute;
+  bottom: 125%; /* Появляется над значком */
+  left: 50%;
+  transform: translateX(-50%);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  font-size: 0.75rem; /* Размер текста */
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+/* Show tooltip on hover */
+.tooltip:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Add a small arrow below the tooltip */
+.tooltip-text::after {
+  content: '';
+  position: absolute;
+  top: 100%; /* Стрелка под текстом */
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #2c3e50 transparent transparent transparent;
+}

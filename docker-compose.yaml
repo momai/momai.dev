@@ -1,0 +1,118 @@
+version: "3.9"
+
+services:
+  oauth2-proxy:
+    image: quay.io/oauth2-proxy/oauth2-proxy:latest
+    container_name: oauth2-proxy
+    environment:
+      - OAUTH2_PROXY_PROVIDER=oidc
+      - OAUTH2_PROXY_OIDC_ISSUER_URL=${OAUTH2_PROXY_OIDC_ISSUER_URL}
+      - OAUTH2_PROXY_CLIENT_ID=${OAUTH2_PROXY_CLIENT_ID}
+      - OAUTH2_PROXY_CLIENT_SECRET=${OAUTH2_PROXY_CLIENT_SECRET}
+      - OAUTH2_PROXY_COOKIE_SECRET=${OAUTH2_PROXY_COOKIE_SECRET}
+      - OAUTH2_PROXY_COOKIE_DOMAINS=.${MAIN_DOMAIN}
+      - OAUTH2_PROXY_SET_XAUTHREQUEST=true
+      - OAUTH2_PROXY_LOG_LEVEL=debug
+      - OAUTH2_PROXY_EMAIL_DOMAINS=*
+      - OAUTH2_PROXY_CODE_CHALLENGE_METHOD=S256
+      - OAUTH2_PROXY_HTTP_ADDRESS=0.0.0.0:4180
+      - OAUTH2_PROXY_COOKIE_PATH=/
+      - OAUTH2_PROXY_SKIP_EMAIL_VERIFICATION=true
+      - OAUTH2_PROXY_ALLOW_REDIRECT=true
+      - OAUTH2_PROXY_REDIRECT_URL=https://${AUTH_FORWARD_DOMAIN}/oauth2/callback
+      - OAUTH2_PROXY_AUTHORIZATION_REDIRECT=true
+      - OAUTH2_PROXY_UPSTREAMS=${OAUTH2_PROXY_UPSTREAMS}
+      - OAUTH2_PROXY_PASS_ACCESS_TOKEN=true
+      - OAUTH2_PROXY_SKIP_PROVIDER_BUTTON=true
+      - OAUTH2_PROXY_SCOPE=openid email profile
+      - OAUTH2_PROXY_AUDIENCE=https://${MAIN_DOMAIN}
+      - OAUTH2_PROXY_COOKIE_SAMESITE=none
+      - OAUTH2_PROXY_COOKIE_SECURE=true
+      - OAUTH2_PROXY_PASS_HOST_HEADER=false
+      - OAUTH2_PROXY_PROMPT=login
+#      - OAUTH2_PROXY_COOKIE_REFRESH=0h1m0s
+      - OAUTH2_PROXY_COOKIE_NAME=_oauth2_proxy
+      - OAUTH2_PROXY_SET_AUTHORIZATION_HEADER=true
+      - OAUTH2_PROXY_PASS_USER_HEADERS=true
+      - OAUTH2_PROXY_WHITELIST_DOMAINS=.${MAIN_DOMAIN}
+      - OAUTH2_PROXY_REVERSE_PROXY=true
+      - OAUTH2_PROXY_AUTH_LOGGING=true
+      - OAUTH2_PROXY_SESSION_STORE_TYPE=cookie
+      - OAUTH2_PROXY_REQUEST_LOGGING=true
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.oauth2.rule=Host(`${AUTH_FORWARD_DOMAIN}`) && PathPrefix(`/oauth2/`)"
+      - "traefik.http.routers.oauth2.entrypoints=websecure"
+      - "traefik.http.routers.oauth2.tls.certresolver=myresolver"
+      # Сервис настройки
+      - "traefik.http.services.oauth2-proxy.loadbalancer.server.port=4180"
+    networks:
+      - app-network
+
+  momai-dev:
+    image: nginx:alpine
+    container_name: momai.dev
+    volumes:
+      - ./content/momai.dev:/usr/share/nginx/html
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.momai.rule=Host(`${MAIN_DOMAIN}`)"
+      - "traefik.http.routers.momai.entrypoints=websecure"
+      - "traefik.http.routers.momai.tls.certresolver=myresolver"
+
+      # Rule for protected /private path
+      - "traefik.http.routers.momai-private.rule=Host(`${MAIN_DOMAIN}`) && PathPrefix(`/private`)"
+      - "traefik.http.routers.momai-private.entrypoints=websecure"
+      - "traefik.http.routers.momai-private.tls.certresolver=myresolver"
+
+      # Auth0 middleware for /private
+      - "traefik.http.routers.momai-private.middlewares=oauth2-auth"
+      - "traefik.http.middlewares.oauth2-auth.forwardauth.address=http://oauth2-proxy:4180"
+      - "traefik.http.middlewares.oauth2-auth.forwardauth.trustforwardheader=true"
+      - "traefik.http.middlewares.oauth2-auth.forwardauth.authresponseheaders=Set-Cookie,X-Auth-Request-User,X-Auth-Request-Email,X-Auth-Request-Access-Token,Authorization,X-Forwarded-For,X-Forwarded-Proto,X-Forwarded-Host,X-Auth-Request-Redirect"
+    networks:
+      - app-network
+
+  realtime-ai:
+    build:
+      context: ./content/voice.momai.dev/openai-voice-webrtc-next
+      dockerfile: Dockerfile
+    container_name: voice.momai.dev
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    networks:
+      - app-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.realtime-ai-secure.rule=Host(`${VOICE_DOMAIN}`)"
+      - "traefik.http.routers.realtime-ai-secure.entrypoints=websecure"
+      - "traefik.http.routers.realtime-ai-secure.tls.certresolver=myresolver"
+      # Auth0
+      - "traefik.http.routers.realtime-ai-secure.middlewares=realtime-ai-auth"
+      - "traefik.http.middlewares.realtime-ai-auth.forwardauth.address=http://oauth2-proxy:4180"
+      - "traefik.http.middlewares.realtime-ai-auth.forwardauth.trustforwardheader=true"
+      - "traefik.http.middlewares.oauth2-auth.forwardauth.authresponseheaders=Set-Cookie,X-Auth-Request-User,X-Auth-Request-Email,X-Auth-Request-Access-Token,Authorization,X-Forwarded-For,X-Forwarded-Proto,X-Forwarded-Host,X-Auth-Request-Redirect"
+
+  test-service:
+    image: nginx:alpine
+    container_name: test.momai.dev
+    volumes:
+      - ./content/test-content:/usr/share/nginx/html  # создадим новую директорию для контента
+    networks:
+      - app-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.test-secure.rule=Host(`${TEST_DOMAIN}`)"
+      - "traefik.http.routers.test-secure.entrypoints=websecure"
+      - "traefik.http.routers.test-secure.tls.certresolver=myresolver"
+     # Auth0
+      - "traefik.http.routers.test-secure.middlewares=test-auth"
+      - "traefik.http.middlewares.test-auth.forwardauth.address=http://oauth2-proxy:4180"
+      - "traefik.http.middlewares.test-auth.forwardauth.trustforwardheader=true"
+      - "traefik.http.middlewares.oauth2-auth.forwardauth.authresponseheaders=Set-Cookie,X-Auth-Request-User,X-Auth-Request-Email,X-Auth-Request-Access-Token,Authorization,X-Forwarded-For,X-Forwarded-Proto,X-Forwarded-Host,X-Auth-Request-Redirect"
+
+
+
+networks:
+  app-network:
+    external: true
