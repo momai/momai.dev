@@ -23,7 +23,7 @@ header {
   height: 75px;
   width: 75px;
   border-radius: 50%;
-  background: url('logo.png') no-repeat center center;
+  background: url('img/logo.png') no-repeat center center;
   background-size: cover;
   flex-shrink: 0;
 }
