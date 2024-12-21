@@ -13,6 +13,10 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v2
 
+      - name: Debug
+        run: echo "SERVER_IP: $SERVER_IP"
+
+
       - name: Add SSH key
         run: |
           mkdir -p ~/.ssh
