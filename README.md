@@ -53,10 +53,10 @@ In the [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
 
 1. **Create Client ID for Web Application.**
 2. Add the following URLs to **Authorized JavaScript Origins**:
-   - `https://${OAUTH2_PROXY_OIDC_ISSUER_URL#https://}` (`https://dev-bla-bla-bla.auth0.com` - auth0 domain)
+   - `https://OIDC_ISSUER_URL` (`https://dev-bla-bla-bla.auth0.com` - auth0 domain)
    - `https://auth.example.dev`
 3. Add the following URLs to **Authorized Redirect URIs**:
-   - `https://${OAUTH2_PROXY_OIDC_ISSUER_URL}/login/callback` (auth0 domain)
+   - `https://OIDC_ISSUER_URL/login/callback` (auth0 domain)
    - `https://auth.example.dev/login/callback`
 
 ### 3. Secrets and Keys
