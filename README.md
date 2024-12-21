@@ -1,6 +1,6 @@
 # momai.dev
 
-A personal homepage built with Traefik for reverse proxying and secure integration with OAuth and OIDC providers. This project serves as a gateway to personal services and projects, focusing on simplicity, security, and scalability.
+A personal homepage built with Traefik for reverse proxying and secure integration with OAuth and OIDC providers, Google + Auth0. This project serves as a gateway to personal services and projects, focusing on simplicity, security, and scalability.
 
 ## Features
 - Reverse proxy and load balancing using Traefik.
@@ -17,18 +17,20 @@ cp .env.sample .env
 docker-compose up -d
 ```
 ## OAuth/OIDC Configuration
+Create an API and an application. Connect a custom domain and set up auth.example.dev as a CNAME.
 
 ### 1. Auth0 Settings
 Configure the following settings in your Auth0 dashboard:
 
 - **Allowed Callback URLs:**  
-  `https://${AUTH_FORWARD_DOMAIN}/oauth2/callback`
-
+  `https://auth-forward.example.dev/oauth2/callback`
+  `https://auth.example.dev/oauth2/callback`
 - **Allowed Logout URLs:**  
-  `https://${MAIN_DOMAIN}`
-
+  `https://example.dev`
+  `https://auth.example.dev`
 - **Allowed Web Origins:**  
-  `https://${MAIN_DOMAIN}`
+  `https://example.dev`
+  `https://auth.example.dev`
 
 - **Client Type:**  
   Client Secret (Post)
@@ -36,7 +38,7 @@ Configure the following settings in your Auth0 dashboard:
 - **Connected API:**  
 
 - **API Identifier:**  
-  `${OAUTH2_PROXY_AUDIENCE}`
+  ``https://auth.example.dev/`
 
 - **Allow Skipping User Consent:**  
   `True`
@@ -51,11 +53,11 @@ In the [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
 
 1. **Create Client ID for Web Application.**
 2. Add the following URLs to **Authorized JavaScript Origins**:
-   - `https://${OAUTH2_PROXY_OIDC_ISSUER_URL#https://}` (Issuer URL without `https://`)
-   - `https://${MAIN_DOMAIN}`
+   - `https://${OAUTH2_PROXY_OIDC_ISSUER_URL#https://}` (`https://dev-bla-bla-bla.auth0.com`)
+   - `https://auth.example.dev`
 3. Add the following URLs to **Authorized Redirect URIs**:
    - `https://${OAUTH2_PROXY_OIDC_ISSUER_URL#https://}/login/callback`
-   - `https://${AUTH_FORWARD_DOMAIN}/login/callback`
+   - `https://auth.example.dev/login/callback`
 
 ### 3. Secrets and Keys
 - **Cookie Secret:** Generate a secure key using the following command:  
