@@ -1,21 +1,18 @@
+---
 name: Auto Deploy
-
 on:
   push:
     branches:
       - main
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
-
       - name: Debug
-        run: echo "SERVER_IP: $SERVER_IP"
-
+        run: |
+          echo "SERVER_IP: $SERVER_IP"
       - name: Add SSH key
         run: |
           mkdir -p ~/.ssh
@@ -23,12 +20,10 @@ jobs:
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H "$SERVER_IP" >> ~/.ssh/known_hosts
-
       - name: Deploy via SSH
-        run: |
+        run: >
           ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no "$SSH_USER"@"$SERVER_IP" \
             "cd {{ secrets.PWD }} && git pull"
-
         env:
           SSH_USER: ${{ secrets.SSH_USER }}
           SERVER_IP: ${{ secrets.SERVER_IP }}
