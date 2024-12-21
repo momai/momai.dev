@@ -20,7 +20,7 @@ docker-compose up -d
 Create an API and an application. Connect a custom domain and set up auth.example.dev as a CNAME.
 
 ### 1. Auth0 Settings
-Configure the following settings in your Auth0 dashboard:
+Configure the following settings in your Auth0 dashboard https://manage.auth0.com/:
 
 - **Allowed Callback URLs:**  
   `https://auth-forward.example.dev/oauth2/callback`
@@ -53,7 +53,7 @@ In the [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
 
 1. **Create Client ID for Web Application.**
 2. Add the following URLs to **Authorized JavaScript Origins**:
-   - `https://${OAUTH2_PROXY_OIDC_ISSUER_URL#https://}` (`https://dev-bla-bla-bla.auth0.com`)
+   - `https://${OAUTH2_PROXY_OIDC_ISSUER_URL#https://}` (`https://dev-bla-bla-bla.auth0.com` - auth0 domain)
    - `https://auth.example.dev`
 3. Add the following URLs to **Authorized Redirect URIs**:
    - `https://${OAUTH2_PROXY_OIDC_ISSUER_URL#https://}/login/callback`
