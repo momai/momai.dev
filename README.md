@@ -56,7 +56,7 @@ In the [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
    - `https://${OAUTH2_PROXY_OIDC_ISSUER_URL#https://}` (`https://dev-bla-bla-bla.auth0.com` - auth0 domain)
    - `https://auth.example.dev`
 3. Add the following URLs to **Authorized Redirect URIs**:
-   - `https://${OAUTH2_PROXY_OIDC_ISSUER_URL#https://}/login/callback`
+   - `https://${OAUTH2_PROXY_OIDC_ISSUER_URL}/login/callback` (auth0 domain)
    - `https://auth.example.dev/login/callback`
 
 ### 3. Secrets and Keys
