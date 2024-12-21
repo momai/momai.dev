@@ -16,7 +16,6 @@ jobs:
       - name: Debug
         run: echo "SERVER_IP: $SERVER_IP"
 
-
       - name: Add SSH key
         run: |
           mkdir -p ~/.ssh
@@ -29,7 +28,6 @@ jobs:
         run: |
           ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no "$SSH_USER"@"$SERVER_IP" \
             "cd {{ secrets.PWD }} && git pull"
-
 
         env:
           SSH_USER: ${{ secrets.SSH_USER }}
