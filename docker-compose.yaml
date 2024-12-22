@@ -10,7 +10,7 @@ services:
       - OAUTH2_PROXY_CLIENT_ID=${OAUTH2_PROXY_CLIENT_ID}
       - OAUTH2_PROXY_CLIENT_SECRET=${OAUTH2_PROXY_CLIENT_SECRET}
       - OAUTH2_PROXY_COOKIE_SECRET=${OAUTH2_PROXY_COOKIE_SECRET}
-      - OAUTH2_PROXY_COOKIE_DOMAINS=.${MAIN_DOMAIN}
+      - OAUTH2_PROXY_COOKIE_DOMAINS=momai.dev,.momai.dev
       - OAUTH2_PROXY_SET_XAUTHREQUEST=true
       - OAUTH2_PROXY_LOG_LEVEL=debug
       - OAUTH2_PROXY_EMAIL_DOMAINS=*
@@ -98,7 +98,7 @@ services:
     image: nginx:alpine
     container_name: test.momai.dev
     volumes:
-      - ./content/test-content:/usr/share/nginx/html  # создадим новую директорию для контента
+      - ./content/test-content:/usr/share/nginx/html
     networks:
       - app-network
     labels:
