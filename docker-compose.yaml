@@ -56,12 +56,12 @@ services:
       - ./content/momai.dev:/usr/share/nginx/html
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.momai.rule=Host(`${MAIN_DOMAIN}`)"
+      - "traefik.http.routers.momai.rule=Host(`momai.dev`)"
       - "traefik.http.routers.momai.entrypoints=websecure"
       - "traefik.http.routers.momai.tls.certresolver=myresolver"
 
       # Rule for protected /private path
-      - "traefik.http.routers.momai-private.rule=Host(`${MAIN_DOMAIN}`) && PathPrefix(`/private`)"
+      - "traefik.http.routers.momai-private.rule=Host(`momai.dev`) && PathPrefix(`/private`)"
       - "traefik.http.routers.momai-private.entrypoints=websecure"
       - "traefik.http.routers.momai-private.tls.certresolver=myresolver"
 
@@ -70,6 +70,7 @@ services:
       - "traefik.http.middlewares.oauth2-auth.forwardauth.address=http://oauth2-proxy:4180"
       - "traefik.http.middlewares.oauth2-auth.forwardauth.trustforwardheader=true"
       - "traefik.http.middlewares.oauth2-auth.forwardauth.authresponseheaders=Set-Cookie,X-Auth-Request-User,X-Auth-Request-Email,X-Auth-Request-Access-Token,Authorization,X-Forwarded-For,X-Forwarded-Proto,X-Forwarded-Host,X-Auth-Request-Redirect"
+
     networks:
       - app-network
 
@@ -91,7 +92,7 @@ services:
       - "traefik.http.routers.realtime-ai-secure.middlewares=realtime-ai-auth"
       - "traefik.http.middlewares.realtime-ai-auth.forwardauth.address=http://oauth2-proxy:4180"
       - "traefik.http.middlewares.realtime-ai-auth.forwardauth.trustforwardheader=true"
-      - "traefik.http.middlewares.oauth2-auth.forwardauth.authresponseheaders=Set-Cookie,X-Auth-Request-User,X-Auth-Request-Email,X-Auth-Request-Access-Token,Authorization,X-Forwarded-For,X-Forwarded-Proto,X-Forwarded-Host,X-Auth-Request-Redirect"
+      - "traefik.http.middlewares.realtime-ai-auth.forwardauth.authresponseheaders=Set-Cookie,X-Auth-Request-User,X-Auth-Request-Email,X-Auth-Request-Access-Token,Authorization,X-Forwarded-For,X-Forwarded-Proto,X-Forwarded-Host,X-Auth-Request-Redirect"
 
   test-service:
     image: nginx:alpine
@@ -109,7 +110,7 @@ services:
       - "traefik.http.routers.test-secure.middlewares=test-auth"
       - "traefik.http.middlewares.test-auth.forwardauth.address=http://oauth2-proxy:4180"
       - "traefik.http.middlewares.test-auth.forwardauth.trustforwardheader=true"
-      - "traefik.http.middlewares.oauth2-auth.forwardauth.authresponseheaders=Set-Cookie,X-Auth-Request-User,X-Auth-Request-Email,X-Auth-Request-Access-Token,Authorization,X-Forwarded-For,X-Forwarded-Proto,X-Forwarded-Host,X-Auth-Request-Redirect"
+      - "traefik.http.middlewares.test-auth.forwardauth.authresponseheaders=Set-Cookie,X-Auth-Request-User,X-Auth-Request-Email,X-Auth-Request-Access-Token,Authorization,X-Forwarded-For,X-Forwarded-Proto,X-Forwarded-Host,X-Auth-Request-Redirect"
 
 
 
