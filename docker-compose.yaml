@@ -56,12 +56,12 @@ services:
       - ./content/momai.dev:/usr/share/nginx/html
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.momai.rule=Host(`momai.dev`)"
+      - "traefik.http.routers.momai.rule=Host(`${MAIN_DOMAIN}`)"
       - "traefik.http.routers.momai.entrypoints=websecure"
       - "traefik.http.routers.momai.tls.certresolver=myresolver"
 
       # Rule for protected /private path
-      - "traefik.http.routers.momai-private.rule=Host(`momai.dev`) && PathPrefix(`/private`)"
+      - "traefik.http.routers.momai-private.rule=Host(`${MAIN_DOMAIN}`) && PathPrefix(`/private`)"
       - "traefik.http.routers.momai-private.entrypoints=websecure"
       - "traefik.http.routers.momai-private.tls.certresolver=myresolver"
 
