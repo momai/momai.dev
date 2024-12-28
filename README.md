@@ -23,7 +23,7 @@ Create an API and an application. Connect a custom domain and set up auth.exampl
 Configure the following settings in your Auth0 dashboard https://manage.auth0.com/:
 
 - **Allowed Callback URLs:**  
-  `https://auth-forward.example.dev/oauth2/callback`
+  `https://example.dev/oauth2/callback`
   `https://auth.example.dev/oauth2/callback`
 - **Allowed Logout URLs:**  
   `https://example.dev`
@@ -60,7 +60,4 @@ In the [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
    - `https://auth.example.dev/login/callback`
 
 ### 3. Secrets and Keys
-- **Cookie Secret:** Generate a secure key using the following command:  
-  ```bash
-  openssl rand -base64 32
-```
+- **Cookie Secret:** Generate a secure key using the following command: `openssl rand -base64 32`
