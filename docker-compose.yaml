@@ -7,19 +7,25 @@ services:
     container_name: oauth2-proxy
     environment:
       - OAUTH2_PROXY_PROVIDER=oidc
-      - OAUTH2_PROXY_COOKIE_DOMAINS=momai.dev
-      - OAUTH2_PROXY_OIDC_ISSUER_URL=${OAUTH2_PROXY_OIDC_ISSUER_URL}
-      - OAUTH2_PROXY_CLIENT_ID=${OAUTH2_PROXY_CLIENT_ID}
-      - OAUTH2_PROXY_CLIENT_SECRET=${OAUTH2_PROXY_CLIENT_SECRET}
-      - OAUTH2_PROXY_COOKIE_SECRET=${OAUTH2_PROXY_COOKIE_SECRET}
+      - OAUTH2_PROXY_HTTP_ADDRESS=0.0.0.0:4180
+      - OAUTH2_PROXY_WHITELIST_DOMAINS=.momai.dev
+      - OAUTH2_PROXY_EMAIL_DOMAINS=*
+      - OAUTH2_PROXY_REDIRECT_URL=https://momai.dev/oauth2/callback
+      - OAUTH2_PROXY_UPSTREAMS=http://momai-dev:80
+
+      - OAUTH2_PROXY_COOKIE_DOMAINS=.momai.dev
       - OAUTH2_PROXY_COOKIE_PATH=/
       - OAUTH2_PROXY_COOKIE_SAMESITE=none
       - OAUTH2_PROXY_COOKIE_SECURE=true
+      - OAUTH2_PROXY_COOKIE_NAME=_oauth2_proxy
+#      - OAUTH2_PROXY_COOKIE_REFRESH=0h1m0s
 
-      - OAUTH2_PROXY_HTTP_ADDRESS=0.0.0.0:4180
+      - OAUTH2_PROXY_COOKIE_SECRET=${OAUTH2_PROXY_COOKIE_SECRET}
+      - OAUTH2_PROXY_OIDC_ISSUER_URL=${OAUTH2_PROXY_OIDC_ISSUER_URL}
+      - OAUTH2_PROXY_CLIENT_ID=${OAUTH2_PROXY_CLIENT_ID}
+      - OAUTH2_PROXY_CLIENT_SECRET=${OAUTH2_PROXY_CLIENT_SECRET}
 
       - OAUTH2_PROXY_SKIP_EMAIL_VERIFICATION=true
-      - OAUTH2_PROXY_EMAIL_DOMAINS=*
       - OAUTH2_PROXY_ALLOW_REDIRECT=true
       - OAUTH2_PROXY_AUTHORIZATION_REDIRECT=true
       - OAUTH2_PROXY_CODE_CHALLENGE_METHOD=S256
@@ -27,19 +33,13 @@ services:
       - OAUTH2_PROXY_SKIP_PROVIDER_BUTTON=true
       - OAUTH2_PROXY_SCOPE=openid email profile
       - OAUTH2_PROXY_PROMPT=login
-      - OAUTH2_PROXY_COOKIE_REFRESH=0h1m0s
-      - OAUTH2_PROXY_COOKIE_NAME=_oauth2_proxy
       - OAUTH2_PROXY_SET_AUTHORIZATION_HEADER=true
       - OAUTH2_PROXY_PASS_USER_HEADERS=true
       - OAUTH2_PROXY_LOG_LEVEL=info
       - OAUTH2_PROXY_REQUEST_LOGGING=true
       - OAUTH2_PROXY_AUTH_LOGGING=true
       - OAUTH2_PROXY_SESSION_STORE_TYPE=cookie
-      - OAUTH2_PROXY_WHITELIST_DOMAINS=momai.dev
       - OAUTH2_PROXY_REVERSE_PROXY=true
-
-      - OAUTH2_PROXY_REDIRECT_URL=https://momai.dev/oauth2/callback
-      - OAUTH2_PROXY_UPSTREAMS=http://momai-dev:80
 
     labels:
       - "traefik.enable=true"
@@ -79,60 +79,51 @@ services:
 
 
   realtime-ai:
-    build:
-      context: ./content/voice.momai.dev/openai-voice-webrtc-next
-      dockerfile: Dockerfile
     container_name: voice.momai.dev
+    image: momai/webrtc-voice-next:latest # github shadcn-openai-realtime-api
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
     networks:
       - app-network
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.realtime-ai.rule=Host(`momai.dev`) && PathPrefix(`/voice`)"
-      - "traefik.http.routers.realtime-ai.rule=Host(`momai.dev`) && (PathPrefix(`/voice`) || PathPrefix(`/voice/_next`))"
+      - "traefik.http.routers.realtime-ai.rule=Host(`voice.momai.dev`) || Host(`voice2.momai.dev`)"
       - "traefik.http.routers.realtime-ai.entrypoints=websecure"
       - "traefik.http.routers.realtime-ai.tls.certresolver=myresolver"
 
+      # oAuth
       - "traefik.http.routers.realtime-ai.middlewares=realtime-ai-auth"
       - "traefik.http.middlewares.realtime-ai-auth.forwardauth.address=http://oauth2-proxy:4180"
       - "traefik.http.middlewares.realtime-ai-auth.forwardauth.trustforwardheader=true"
       - "traefik.http.middlewares.realtime-ai-auth.forwardauth.authresponseheaders=Set-Cookie,X-Auth-Request-User,X-Auth-Request-Email,X-Auth-Request-Access-Token,Authorization,X-Forwarded-For,X-Forwarded-Proto,X-Forwarded-Host,X-Auth-Request-Redirect"
 
-      - "traefik.http.routers.voice-redirect.rule=Host(`voice.momai.dev`)"
-      - "traefik.http.routers.voice-redirect.entrypoints=websecure"
-      - "traefik.http.routers.voice-redirect.tls.certresolver=myresolver"
-      - "traefik.http.middlewares.voice-redirect.redirectregex.regex=^https?://voice.momai.dev(.*)"
-      - "traefik.http.middlewares.voice-redirect.redirectregex.replacement=https://momai.dev/private/voice.html"
-      - "traefik.http.middlewares.voice-redirect.redirectregex.permanent=true"
-      - "traefik.http.routers.voice-redirect.middlewares=voice-redirect"
-
-#      - "traefik.http.routers.realtime-ai.middlewares=realtime-ai-strip,realtime-ai-auth"
-#      - "traefik.http.middlewares.realtime-ai-strip.stripprefix.prefixes=/voice"
-
   test-service:
     image: nginx:alpine
+#    image: momai/webrtc-voice-next:latest
     container_name: test.momai.dev
-    volumes:
-      - ./content/test-content:/usr/share/nginx/html
+#    volumes:
+#      - ./content/test-content:/usr/share/nginx/html
+#    environment:
+#      - OPENAI_API_KEY=${OPENAI_API_KEY}
+#      - NEXT_PUBLIC_BASE_PATH=/test
     networks:
       - app-network
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.test.rule=Host(`momai.dev`) && PathPrefix(`/test`)"
+      - "traefik.http.routers.test.rule=Host(`test.momai.dev`)"
       - "traefik.http.routers.test.entrypoints=websecure"
       - "traefik.http.routers.test.tls.certresolver=myresolver"
       - "traefik.http.routers.test.priority=2"
-      - "traefik.http.services.test.loadbalancer.server.port=80"
 
+      # oAuth
       - "traefik.http.routers.test.middlewares=test-auth"
       - "traefik.http.middlewares.test-auth.forwardauth.address=http://oauth2-proxy:4180"
       - "traefik.http.middlewares.test-auth.forwardauth.trustforwardheader=true"
       - "traefik.http.middlewares.test-auth.forwardauth.authresponseheaders=Set-Cookie,X-Auth-Request-User,X-Auth-Request-Email,X-Auth-Request-Access-Token,Authorization,X-Forwarded-For,X-Forwarded-Proto,X-Forwarded-Host,X-Auth-Request-Redirect"
 
-#      - "traefik.http.routers.test.middlewares=test-strip,test-auth"
-#      - "traefik.http.middlewares.test-strip.stripprefix.prefixes=/test"
-
 networks:
   app-network:
     external: true
+
+#volumes:
+#  chat-ui:
